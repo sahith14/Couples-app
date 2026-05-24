@@ -96,7 +96,59 @@ export interface Message {
   expires_at: string | null;
   edited_at: string | null;
   pinned: boolean;
+  /** Future-send: when set, the message is hidden until the dispatcher flips it. */
+  scheduled_at: string | null;
+  scheduled_dispatched_at: string | null;
   created_at: string;
+}
+
+/** 24-hour disappearing post (Insta-style "Notes"). */
+export type InstantKind = 'photo' | 'text' | 'mood';
+export interface Instant {
+  id: UUID;
+  couple_id: UUID;
+  author_id: UUID;
+  kind: InstantKind;
+  body: string | null;
+  mood: MoodKey | null;
+  media_path: string | null;
+  ciphertext: string | null;
+  nonce: string | null;
+  media_nonce: string | null;
+  expires_at: string;
+  views: Record<string, string>;
+  created_at: string;
+}
+
+/** Live phone status of a couple member. */
+export interface PhoneStatus {
+  user_id: UUID;
+  couple_id: UUID;
+  battery_pct: number | null;
+  is_charging: boolean | null;
+  battery_low: boolean | null;
+  dnd: boolean | null;
+  focus_mode: string | null;
+  active: boolean;
+  current_screen: string | null;
+  now_playing_title: string | null;
+  now_playing_app: string | null;
+  online_at: string;
+  updated_at: string;
+}
+
+/** Single-query payload consumed by widgets / lockscreen activity / status card. */
+export interface WidgetPayload {
+  couple_id: UUID;
+  user_a: UUID;
+  user_b: UUID;
+  anniversary: string | null;
+  streak_count: number;
+  level: number;
+  xp: number;
+  partner_status: PhoneStatus | null;
+  partner_mood: MoodLog | null;
+  latest_instant: Instant | null;
 }
 
 /** Decoded form held in memory after client-side decryption. */

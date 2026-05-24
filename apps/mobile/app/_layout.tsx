@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useAuthStore } from '@/stores/authStore';
 import { registerForPushAsync, addResponseListener } from '@/services/pushNotifications';
+import { startPhoneStatus, stopPhoneStatus } from '@/services/phoneStatus';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +41,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     void registerForPushAsync(user.id).catch(() => {});
   }, [user?.id]);
 
+  // Start broadcasting phone status (battery, screen, online) to the partner.
+  useEffect(() => {
+    if (!session || !couple) return;
+    startPhoneStatus();
+    return () => stopPhoneStatus();
+  }, [session?.user.id, couple?.id]);
+
   // Deep-link from notification taps. Messages → chat, SOS → map, capsule → capsules.
   useEffect(() => {
     const off = addResponseListener((r) => {
@@ -59,6 +67,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           break;
         case 'event':
           router.push('/planner');
+          break;
+        case 'instant':
+          router.push('/instants');
+          break;
+        case 'call':
+          router.push('/call');
           break;
         default:
           break;
