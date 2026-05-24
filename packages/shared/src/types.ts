@@ -41,6 +41,8 @@ export interface Profile {
   ghost_mode: boolean;
   low_bandwidth: boolean;
   theme: string;
+  /** Curve25519 public key (base64) for E2E. Secret key stays on device. */
+  public_key: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -78,8 +80,9 @@ export interface Message {
   conversation_id: UUID;
   sender_id: UUID;
   kind: MessageKind;
-  ciphertext: string | null; // base64 from server (bytea)
-  nonce: string | null;
+  ciphertext: string | null; // base64 from server (bytea); for media this holds the wrapped media key
+  nonce: string | null;      // base64; for media this is the wrap nonce
+  media_nonce: string | null; // base64; secretbox nonce for the encrypted file body
   media_path: string | null;
   media_mime: string | null;
   media_bytes: number | null;

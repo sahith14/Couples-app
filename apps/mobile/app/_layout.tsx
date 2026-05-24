@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useAuthStore } from '@/stores/authStore';
+import { registerForPushAsync, addResponseListener } from '@/services/pushNotifications';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,7 +18,7 @@ const queryClient = new QueryClient({
 function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
-  const { session, couple, hydrated } = useAuthStore();
+  const { session, couple, hydrated, user } = useAuthStore();
 
   useEffect(() => {
     if (!hydrated) return;
@@ -32,6 +33,39 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       router.replace('/(tabs)/home');
     }
   }, [session, couple, segments, hydrated, router]);
+
+  // Register push tokens once the user is authed.
+  useEffect(() => {
+    if (!user) return;
+    void registerForPushAsync(user.id).catch(() => {});
+  }, [user?.id]);
+
+  // Deep-link from notification taps. Messages → chat, SOS → map, capsule → capsules.
+  useEffect(() => {
+    const off = addResponseListener((r) => {
+      const data = r.notification.request.content.data as { type?: string } | undefined;
+      switch (data?.type) {
+        case 'message':
+          router.push('/(tabs)/chat');
+          break;
+        case 'sos':
+          router.push('/(tabs)/map');
+          break;
+        case 'capsule':
+          router.push('/capsules');
+          break;
+        case 'memory':
+          router.push('/(tabs)/memories');
+          break;
+        case 'event':
+          router.push('/planner');
+          break;
+        default:
+          break;
+      }
+    });
+    return off;
+  }, [router]);
 
   return <>{children}</>;
 }

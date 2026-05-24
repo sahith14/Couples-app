@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View, Text, RefreshControl } from 'react-native';
+import { ScrollView, View, Text, RefreshControl, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme/ThemeProvider';
 import { AuroraBackdrop } from '@/ui/AuroraBackdrop';
 import { GlassCard } from '@/ui/GlassCard';
@@ -17,6 +18,7 @@ function daysBetween(a: Date, b: Date) {
 export default function Home() {
   const { palette, typography, spacing } = useTheme();
   const { profile, couple, refreshCouple } = useAuthStore();
+  const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [todayMood, setTodayMood] = useState<string | null>(null);
   const [partnerMood, setPartnerMood] = useState<string | null>(null);
@@ -174,20 +176,49 @@ export default function Home() {
             </GlassCard>
           )}
 
+          {/* Quick actions */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {[
+              { label: '🎯 Quests',   to: '/quests' },
+              { label: '🗓 Planner',  to: '/planner' },
+              { label: '⏳ Capsules', to: '/capsules' },
+              { label: '📝 Notes',    to: '/notes' },
+              { label: '💗 Heartbeat',to: '/heartbeat' },
+              { label: '✨ Premium',  to: '/paywall' },
+            ].map((q) => (
+              <Pressable
+                key={q.to}
+                onPress={() => router.push(q.to as any)}
+                style={{
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  borderRadius: 999,
+                  backgroundColor: palette.surface,
+                  borderWidth: 1,
+                  borderColor: palette.border,
+                }}
+              >
+                <Text style={{ color: palette.text, fontWeight: '600' }}>{q.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+
           {/* Heartbeat ring */}
-          <GlassCard padding={0}>
-            <LinearGradient
-              colors={palette.gradient as [string, string, ...string[]]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ padding: spacing.xl, borderRadius: 20 }}
-            >
-              <Text style={[typography.h2, { color: palette.primaryOn }]}>Heartbeat mode</Text>
-              <Text style={{ color: palette.primaryOn, opacity: 0.85, marginTop: 4 }}>
-                Tap to feel each other's pulse for 60 seconds.
-              </Text>
-            </LinearGradient>
-          </GlassCard>
+          <Pressable onPress={() => router.push('/heartbeat')}>
+            <GlassCard padding={0}>
+              <LinearGradient
+                colors={palette.gradient as [string, string, ...string[]]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ padding: spacing.xl, borderRadius: 20 }}
+              >
+                <Text style={[typography.h2, { color: palette.primaryOn }]}>Heartbeat mode</Text>
+                <Text style={{ color: palette.primaryOn, opacity: 0.85, marginTop: 4 }}>
+                  Tap to feel each other's pulse for 60 seconds.
+                </Text>
+              </LinearGradient>
+            </GlassCard>
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </View>

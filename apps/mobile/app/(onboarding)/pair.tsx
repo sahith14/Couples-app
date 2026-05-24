@@ -11,7 +11,7 @@ import { TextField } from '@/ui/TextField';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/stores/authStore';
 import { inviteCodeSchema, SOULSYNC } from '@soulsync/shared';
-import { getMyPublicKeyB64 } from '@/services/secureKeys';
+import { syncMyPublicKey, syncPartnerPublicKey } from '@/services/keys';
 
 export default function Pair() {
   const { palette, typography, spacing } = useTheme();
@@ -23,11 +23,8 @@ export default function Pair() {
   const [err, setErr] = useState<string | null>(null);
 
   async function uploadPubKey() {
-    const pub = await getMyPublicKeyB64();
     if (!user) return;
-    // Optional: push public key into profile (add a column if you want; here we keep it client-side
-    // until partner is paired, then exchange via a dedicated table you can add later).
-    await supabase.from('profiles').update({ /* public_key: pub */ }).eq('id', user.id);
+    await syncMyPublicKey(user.id);
   }
 
   async function generate() {
@@ -50,10 +47,13 @@ export default function Pair() {
     }
     setLoading(true);
     setErr(null);
+    // Make sure our pub key is uploaded before redeem so the partner can find it.
+    await uploadPubKey();
     const { error } = await supabase.rpc('redeem_invite_code', { p_code: parsed.data });
     setLoading(false);
     if (error) return setErr(error.message);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    await syncPartnerPublicKey();
     await refreshCouple();
   }
 
