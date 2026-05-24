@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "SoulSync",
+    "slug": "soulsync",
+    "scheme": "soulsync",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0B0710"
+    },
+    "newArchEnabled": true,
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "bundleIdentifier": "app.soulsync.ios",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "SoulSync uses your camera to capture photos and videos for your shared memory vault.",
+        "NSPhotoLibraryUsageDescription": "SoulSync needs access to your photos to add them to your shared vault.",
+        "NSMicrophoneUsageDescription": "SoulSync uses your microphone to record voice notes for your partner.",
+        "NSLocationWhenInUseUsageDescription": "Share your live location with your partner.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Send safe-arrival pings and ETA in the background.",
+        "UIBackgroundModes": ["location", "fetch", "remote-notification"],
+        "NSFaceIDUsageDescription": "Unlock your private vault with Face ID."
+      }
+    },
+    "android": {
+      "package": "app.soulsync.android",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0B0710"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "RECORD_AUDIO",
+        "CAMERA",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "POST_NOTIFICATIONS",
+        "USE_BIOMETRIC",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications",
+      "expo-location",
+      ["expo-image-picker", { "photosPermission": "Allow SoulSync to access your photos." }],
+      ["expo-av", { "microphonePermission": "Allow SoulSync to record voice notes." }]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": { "origin": false }
+    }
+  }
+}

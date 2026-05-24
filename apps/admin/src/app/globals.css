@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body { -webkit-font-smoothing: antialiased; }
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+}
+.h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.6px; }
+.kpi { font-size: 40px; font-weight: 800; }
+.muted { color: #C9BEDC; }
+.faint { color: #7C7090; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+.grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
