@@ -56,6 +56,7 @@ export default function Chat() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [recordingMs, setRecordingMs] = useState(0);
   const [reactionTarget, setReactionTarget] = useState<UIMessage | null>(null);
+  const [showSchedule, setShowSchedule] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const listRef = useRef<FlatList<UIMessage>>(null);
   const partnerPubKeyRef = useRef<Uint8Array | null>(null);
@@ -171,7 +172,7 @@ export default function Chat() {
     return base;
   }
 
-  async function send() {
+  async function send(scheduleAt?: Date) {
     if (!input.trim() || !conversationId || !profile || sending) return;
     const text = input.trim();
     setInput('');
@@ -186,6 +187,24 @@ export default function Chat() {
         nonce = sealed.nonce;
       } else {
         Alert.alert('Partner key not found', 'Ask your partner to open the app once so we can exchange encryption keys.');
+        return;
+      }
+
+      // Scheduled messages: insert with scheduled_at; the dispatcher will flip
+      // scheduled_dispatched_at when the time comes and realtime fires it then.
+      // We don't show an optimistic bubble for the recipient — only for the
+      // sender (the RLS policy lets sender see their queued messages).
+      if (scheduleAt && scheduleAt.getTime() > Date.now() + 30_000) {
+        await supabase.from('messages').insert({
+          conversation_id: conversationId,
+          sender_id: profile.id,
+          kind: 'text',
+          ciphertext,
+          nonce,
+          scheduled_at: scheduleAt.toISOString(),
+        });
+        Alert.alert('Scheduled 💌', `Will arrive ${friendlyDate(scheduleAt)}`);
+        void supabase.rpc('complete_quest', { p_couple: couple!.id, p_code: 'schedule_msg' });
         return;
       }
 
@@ -537,6 +556,12 @@ export default function Chat() {
                 >
                   <Text style={{ color: palette.text, fontSize: 22 }}>🎙️</Text>
                 </Pressable>
+                <Pressable
+                  onPress={() => input.trim() && setShowSchedule(true)}
+                  style={{ paddingHorizontal: 6, paddingVertical: 6, opacity: input.trim() ? 1 : 0.4 }}
+                >
+                  <Text style={{ color: palette.text, fontSize: 22 }}>⏰</Text>
+                </Pressable>
                 <TextInput
                   value={input}
                   onChangeText={setInput}
@@ -551,7 +576,7 @@ export default function Chat() {
                   }}
                   multiline
                 />
-                <Button label="Send" onPress={send} loading={sending} />
+                <Button label="Send" onPress={() => send()} loading={sending} />
               </View>
             )}
           </GlassCard>
@@ -592,6 +617,13 @@ export default function Chat() {
           </View>
         </Pressable>
       </Modal>
+
+      {/* Schedule message */}
+      <ScheduleModal
+        visible={showSchedule}
+        onClose={() => setShowSchedule(false)}
+        onPick={(d) => { setShowSchedule(false); void send(d); }}
+      />
     </View>
   );
 }
@@ -692,4 +724,80 @@ function bytesToBase64(bytes: Uint8Array): string {
 
 function randId(): string {
   return Math.random().toString(36).slice(2, 10);
+}
+
+
+function friendlyDate(d: Date): string {
+  const ms = d.getTime() - Date.now();
+  const m = Math.round(ms / 60_000);
+  if (m < 60) return `in ${m}m`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `in ${h}h`;
+  return d.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+const SCHEDULE_PRESETS: { label: string; ms: number }[] = [
+  { label: 'In 1 hour',     ms: 60 * 60_000 },
+  { label: 'Tonight 9pm',   ms: msUntilHour(21) },
+  { label: 'Tomorrow 8am',  ms: msUntilHour(8, 1) },
+  { label: 'Tomorrow 9pm',  ms: msUntilHour(21, 1) },
+  { label: 'In 1 week',     ms: 7 * 24 * 60 * 60_000 },
+];
+
+function msUntilHour(hour: number, addDays = 0): number {
+  const target = new Date();
+  target.setDate(target.getDate() + addDays);
+  target.setHours(hour, 0, 0, 0);
+  const ms = target.getTime() - Date.now();
+  return ms > 0 ? ms : ms + 24 * 60 * 60_000;
+}
+
+function ScheduleModal({
+  visible, onClose, onPick,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  onPick: (d: Date) => void;
+}) {
+  const { palette, typography, spacing } = useTheme();
+  if (!visible) return null;
+  return (
+    <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
+      <Pressable onPress={onClose} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
+      <View style={{ backgroundColor: palette.surfaceStrong, padding: spacing.xl, borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
+        <Text style={[typography.h3, { color: palette.text, marginBottom: 4 }]}>
+          ⏰ Schedule for later
+        </Text>
+        <Text style={{ color: palette.textMuted, fontSize: 13, marginBottom: spacing.md }}>
+          Your message stays sealed until then. Only you can see it queued.
+        </Text>
+        <View style={{ gap: 8 }}>
+          {SCHEDULE_PRESETS.map((p) => (
+            <Pressable
+              key={p.label}
+              onPress={() => onPick(new Date(Date.now() + p.ms))}
+              style={{
+                padding: 14, borderRadius: 14,
+                backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.border,
+                flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+              }}
+            >
+              <Text style={{ color: palette.text, fontSize: 15, fontWeight: '600' }}>{p.label}</Text>
+              <Text style={{ color: palette.textFaint, fontSize: 12 }}>
+                {friendlyDate(new Date(Date.now() + p.ms))}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <View style={{ marginTop: spacing.md }}>
+          <Pressable
+            onPress={onClose}
+            style={{ padding: 12, alignItems: 'center' }}
+          >
+            <Text style={{ color: palette.textMuted, fontWeight: '600' }}>Cancel</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
 }

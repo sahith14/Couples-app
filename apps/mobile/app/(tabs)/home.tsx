@@ -10,6 +10,9 @@ import { useAuthStore } from '@/stores/authStore';
 import { supabase } from '@/services/supabase';
 import { moodColors, QUEST_CODES } from '@soulsync/shared';
 import { LinearGradient } from 'expo-linear-gradient';
+import { PartnerStatusCard } from '@/ui/PartnerStatusCard';
+import { setCurrentScreen } from '@/services/phoneStatus';
+import { useFocusEffect } from 'expo-router';
 
 function daysBetween(a: Date, b: Date) {
   return Math.floor((+b - +a) / (1000 * 60 * 60 * 24));
@@ -57,6 +60,11 @@ export default function Home() {
   useEffect(() => {
     void loadHomeData();
   }, [couple?.id, profile?.id]);
+
+  useFocusEffect(React.useCallback(() => {
+    setCurrentScreen('home');
+    return () => setCurrentScreen(null);
+  }, []));
 
   async function logMood(mood: string) {
     if (!couple || !profile) return;
@@ -123,6 +131,9 @@ export default function Home() {
             </View>
           </GlassCard>
 
+          {/* Live partner status */}
+          <PartnerStatusCard />
+
           {/* Mood sync */}
           <GlassCard>
             <Text style={[typography.h3, { color: palette.text, marginBottom: spacing.md }]}>
@@ -179,6 +190,8 @@ export default function Home() {
           {/* Quick actions */}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {[
+              { label: '⚡ Instants', to: '/instants' },
+              { label: '📞 Call',     to: '/call' },
               { label: '🎯 Quests',   to: '/quests' },
               { label: '🗓 Planner',  to: '/planner' },
               { label: '⏳ Capsules', to: '/capsules' },
