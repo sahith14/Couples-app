@@ -18,9 +18,18 @@ create table public.quest_progress (
   user_id      uuid references public.profiles(id) on delete cascade, -- null = couple-wide
   quest_id     uuid not null references public.quests(id) on delete cascade,
   for_date     date not null default current_date,
-  completed_at timestamptz,
-  unique (couple_id, coalesce(user_id, '00000000-0000-0000-0000-000000000000'::uuid), quest_id, for_date)
+  completed_at timestamptz
 );
+-- Function expressions aren't allowed inside an inline UNIQUE constraint, so
+-- we use a UNIQUE INDEX with COALESCE to treat NULL user_id (couple-wide
+-- quests) as a single sentinel.
+create unique index quest_progress_unique_idx
+  on public.quest_progress (
+    couple_id,
+    coalesce(user_id, '00000000-0000-0000-0000-000000000000'::uuid),
+    quest_id,
+    for_date
+  );
 create index quest_progress_couple_idx on public.quest_progress(couple_id, for_date);
 
 create table public.achievements (
