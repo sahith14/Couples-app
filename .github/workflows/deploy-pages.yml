@@ -1,0 +1,51 @@
+name: Deploy preview to GitHub Pages
+
+# Builds the static SoulSync design preview from `preview/` and publishes it
+# to GitHub Pages. The first run creates the `gh-pages` environment; after
+# that, the URL is https://<user>.github.io/<repo>/.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'preview/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build static site
+        run: |
+          mkdir -p _site
+          cp -r preview/* _site/
+          # Add a tiny redirect for friendlier root path
+          cat > _site/.nojekyll <<EOF
+          EOF
+          ls -la _site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
