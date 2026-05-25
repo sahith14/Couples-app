@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B0710"/>
+      <stop offset="100%" stop-color="#120B1A"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF5C8A"/>
+      <stop offset="50%" stop-color="#9D6BFF"/>
+      <stop offset="100%" stop-color="#5C8AFF"/>
+    </linearGradient>
+    <radialGradient id="g1" cx="0.85" cy="0.1" r="0.6">
+      <stop offset="0%" stop-color="rgba(255,92,138,0.4)"/>
+      <stop offset="100%" stop-color="rgba(255,92,138,0)"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="0.1" cy="0.9" r="0.6">
+      <stop offset="0%" stop-color="rgba(157,107,255,0.35)"/>
+      <stop offset="100%" stop-color="rgba(157,107,255,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#g1)"/>
+  <rect width="1200" height="630" fill="url(#g2)"/>
+
+  <!-- Heart logo -->
+  <g transform="translate(80, 80)">
+    <rect width="80" height="80" rx="22" fill="url(#title)"/>
+    <text x="40" y="56" text-anchor="middle" font-size="44" font-family="-apple-system, system-ui">💗</text>
+  </g>
+  <text x="180" y="120" font-family="-apple-system, system-ui, sans-serif"
+        font-size="28" font-weight="800" fill="#F8F4FF">SoulSync</text>
+  <text x="180" y="148" font-family="-apple-system, system-ui, sans-serif"
+        font-size="16" font-weight="500" fill="#C9BEDC">the couples super-app</text>
+
+  <!-- Title -->
+  <text x="80" y="290" font-family="-apple-system, system-ui, sans-serif"
+        font-size="80" font-weight="900" fill="#F8F4FF" letter-spacing="-2">Two hearts.</text>
+  <text x="80" y="380" font-family="-apple-system, system-ui, sans-serif"
+        font-size="80" font-weight="900" fill="url(#title)" letter-spacing="-2">One private space.</text>
+
+  <text x="80" y="450" font-family="-apple-system, system-ui, sans-serif"
+        font-size="22" font-weight="500" fill="#C9BEDC">E2E chat · Instants · Live status · Schedule msgs · ₹149/mo</text>
+
+  <!-- Pills -->
+  <g font-family="-apple-system, system-ui, sans-serif" font-size="14" font-weight="600" fill="#F8F4FF">
+    <rect x="80"  y="510" width="170" height="42" rx="21" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="100" y="537">⚡ Expo SDK 51</text>
+    <rect x="266" y="510" width="170" height="42" rx="21" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="286" y="537">🔒 tweetnacl box</text>
+    <rect x="452" y="510" width="170" height="42" rx="21" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="472" y="537">⚙️ Supabase</text>
+    <rect x="638" y="510" width="170" height="42" rx="21" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="658" y="537">🇮🇳 Made in India</text>
+  </g>
+</svg>

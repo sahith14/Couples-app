@@ -1,8 +1,25 @@
 # SoulSync 💗
 
+[![CI](https://github.com/sahith14/Couples-app/actions/workflows/ci.yml/badge.svg)](https://github.com/sahith14/Couples-app/actions/workflows/ci.yml)
+[![Pages](https://github.com/sahith14/Couples-app/actions/workflows/deploy-pages.yml/badge.svg)](https://sahith14.github.io/Couples-app/)
+[![Live preview](https://img.shields.io/badge/preview-live-FF5C8A?logo=githubpages&logoColor=white)](https://sahith14.github.io/Couples-app/)
+[![Expo SDK 51](https://img.shields.io/badge/Expo-SDK_51-000020?logo=expo&logoColor=white)](https://docs.expo.dev/)
+[![Supabase](https://img.shields.io/badge/Supabase-postgres-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![License](https://img.shields.io/badge/license-private-7C7090)](#)
+[![Made in India](https://img.shields.io/badge/made%20in-India-FF9933)](#)
+
 The couples super-app — Between · Paired · Lovewick · Widgetable · Life360 fused into one cinematic, end-to-end-encrypted product.
 
-> **Status:** foundation + first feature sprints shipped. Real auth, real E2E chat (text + image + voice), real memory vault, real background location with SOS, real time capsules, planner, quests, notes, push notifications, paywall, and a working AI Edge Function. A few cinematic add-ons (Memory Galaxy 3D, AI yearly recap renderer, lock-screen widgets) are explicitly stubbed for follow-up sprints — see [`docs/ROADMAP.md`](docs/ROADMAP.md) for the honest status of every feature.
+> **🌐 Live preview:** https://sahith14.github.io/Couples-app/  
+> **Status:** foundation + 3 feature sprints shipped. Real auth, real E2E chat (text + image + voice), real memory vault, real background location with SOS, real time capsules, planner, quests, notes, push notifications, **24h Instants, scheduled messages, live phone status, ₹149/mo paywall, 1:1 video call, and native widget code (iOS WidgetKit + Android Glance)**. A few cinematic add-ons (Memory Galaxy 3D, AI yearly recap renderer) are stubbed for follow-up sprints — see [`docs/ROADMAP.md`](docs/ROADMAP.md) for the honest status of every feature.
+
+## Quick start (Windows / PowerShell)
+
+```powershell
+.\setup.ps1
+```
+
+That's it — the script installs deps, sets up `.env`, runs typecheck, and prints the next steps. For non-Windows or manual setup, see "Quick start (manual)" below.
 
 ## Repo layout
 

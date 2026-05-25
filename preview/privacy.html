@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Privacy Policy · SoulSync</title>
+  <meta name="description" content="How SoulSync handles your data — short answer: end-to-end encrypted, never sold, never read by us." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="legal.css" />
+</head>
+<body>
+  <div class="legal-shell">
+    <div class="legal-top">
+      <a class="legal-back" href="index.html">← Back</a>
+      <div class="legal-logo">
+        <div class="legal-logo-mark"><span style="font-size:14px;">💗</span></div>
+        SoulSync
+      </div>
+    </div>
+
+    <h1>Privacy Policy</h1>
+    <p class="legal-meta">Last updated: 25 May 2026 · Effective: 25 May 2026</p>
+
+    <div class="legal-toc">
+      <h3>CONTENTS</h3>
+      <ol>
+        <li><a href="#tldr">TL;DR</a></li>
+        <li><a href="#who">Who we are</a></li>
+        <li><a href="#what-we-collect">What we collect</a></li>
+        <li><a href="#how-we-use-it">How we use it</a></li>
+        <li><a href="#e2e">End-to-end encryption</a></li>
+        <li><a href="#sharing">Sharing</a></li>
+        <li><a href="#retention">Retention</a></li>
+        <li><a href="#your-rights">Your rights</a></li>
+        <li><a href="#children">Children</a></li>
+        <li><a href="#changes">Changes</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </div>
+
+    <h2 id="tldr">1. TL;DR</h2>
+    <p>SoulSync is a private space for two people. Your messages, voice notes, photos, and Instants are <strong>end-to-end encrypted on your device</strong> with keys we never see. Your location is shared only with your partner, and only when you choose. We don't sell your data. We don't show ads. We make money from a paid subscription (₹149/mo and up).</p>
+
+    <h2 id="who">2. Who we are</h2>
+    <p>SoulSync ("we", "us") is operated by the SoulSync team. For questions, email <a href="mailto:privacy@soulsync.app">privacy@soulsync.app</a>.</p>
+
+    <h2 id="what-we-collect">3. What we collect</h2>
+
+    <h3>Account data (we can read this)</h3>
+    <ul>
+      <li>Email address (for sign-in and account recovery)</li>
+      <li>Display name + optional username, avatar, pronouns, birthday, "love language"</li>
+      <li>Push notification token (so we can send delivery alerts)</li>
+      <li>Subscription status (free / Plus / Infinite)</li>
+      <li>Couple-pairing code metadata (timestamps, who paired with whom)</li>
+    </ul>
+
+    <h3>Encrypted data (we cannot read this)</h3>
+    <ul>
+      <li>Messages (text, voice notes, images, videos)</li>
+      <li>Memory vault photos and videos</li>
+      <li>Instants (24-hour disappearing posts)</li>
+      <li>Time capsules (sealed messages to the future)</li>
+      <li>Secret album contents</li>
+    </ul>
+    <p>These are encrypted with <code>tweetnacl box</code> (Curve25519 + XSalsa20 + Poly1305) on your device before they leave it. Your private key lives in your phone's secure enclave (iOS Keychain / Android Keystore via <code>expo-secure-store</code>) and never leaves the device.</p>
+
+    <h3>Sensor and device data (with your permission)</h3>
+    <ul>
+      <li><strong>Location</strong> — only if you turn on live sharing. Stored as GeoJSON points; visible only to your partner; respects your "Ghost mode" toggle.</li>
+      <li><strong>Battery + charging state</strong> — sampled while the app is active so the partner card on your partner's home shows "🔋 78%". Never sold; only your paired partner sees it.</li>
+      <li><strong>App foreground state</strong> — used for "active in chat" presence indicator. Never written to permanent logs.</li>
+      <li><strong>Microphone, camera, photos</strong> — only when you explicitly use voice notes, video calls, or photo upload. Files are encrypted before upload.</li>
+    </ul>
+
+    <h3>Operational metadata</h3>
+    <ul>
+      <li>Crash logs (no message content, no PII other than your user ID)</li>
+      <li>AI feature usage counts (model name, input/output character count, cost — used to enforce per-tier limits)</li>
+      <li>Standard server logs (IP, request path, status code) retained for 30 days for abuse prevention</li>
+    </ul>
+
+    <h2 id="how-we-use-it">4. How we use it</h2>
+    <ul>
+      <li><strong>To deliver the service</strong> — route encrypted messages, push notifications, store encrypted media</li>
+      <li><strong>To keep your account secure</strong> — detect anomalous sign-ins, enforce rate limits</li>
+      <li><strong>To bill subscriptions</strong> — through Apple App Store and Google Play; we never see your card details</li>
+      <li><strong>To improve the product</strong> — aggregate, anonymous usage signals (e.g. "what % of couples use Instants weekly")</li>
+    </ul>
+    <p>We <strong>do not</strong> use your data to train any AI model. AI features (compose-message, captions) call third-party APIs only with the prompt content you explicitly ask for, and those providers contractually do not retain data for training.</p>
+
+    <h2 id="e2e">5. End-to-end encryption — what it means</h2>
+    <p>When you tap "send" on a message:</p>
+    <ol>
+      <li>Your phone generates a fresh nonce.</li>
+      <li>The plaintext is sealed with <code>nacl.box(theirPublicKey, mySecretKey, nonce)</code>.</li>
+      <li>Only the resulting ciphertext + nonce reach our servers — the plaintext is mathematically inaccessible without the recipient's private key.</li>
+      <li>Your partner's device unwraps the ciphertext locally.</li>
+    </ol>
+    <p>This means: even if our database were leaked, your messages would still be unreadable. We literally cannot hand your messages over in response to a subpoena, because we don't have them in any form we can decrypt.</p>
+    <p>The trade-off: if you lose your device <em>and</em> haven't set up any backup, prior messages are gone forever. There is no "reset password to recover messages" flow possible by design.</p>
+
+    <h2 id="sharing">6. Sharing</h2>
+    <p>We share data only with:</p>
+    <ul>
+      <li><strong>Supabase</strong> (database + storage hosting) — they receive ciphertext, not plaintext</li>
+      <li><strong>Apple / Google</strong> — to deliver push notifications and process subscription payments</li>
+      <li><strong>OpenAI-compatible AI provider</strong> (configurable, default OpenAI) — only when you actively use AI features, only the prompt you submit</li>
+      <li><strong>Law enforcement</strong> — if compelled by a valid legal order. We can only provide what we have, which excludes message contents.</li>
+    </ul>
+    <p>We do <strong>not</strong> sell, rent, or share your personal data with advertisers, data brokers, or any other third party.</p>
+
+    <h2 id="retention">7. Retention</h2>
+    <ul>
+      <li>Active account data: kept while your account exists</li>
+      <li>Disappearing messages: deleted at <code>expires_at</code> (typically minutes to days)</li>
+      <li>Instants: hard-deleted 24 hours after creation</li>
+      <li>Location pings: rolling 7 days hot, then deleted</li>
+      <li>Server logs: 30 days</li>
+      <li>Account deletion: triggers cascade delete of everything within 7 days</li>
+    </ul>
+
+    <h2 id="your-rights">8. Your rights</h2>
+    <p>You can, from inside the app:</p>
+    <ul>
+      <li>Export all your data (Settings → Export)</li>
+      <li>Delete your account (Settings → Delete account — irreversible after 7 days)</li>
+      <li>Toggle Ghost mode (hides your location and phone status from your partner)</li>
+      <li>Revoke device sessions</li>
+    </ul>
+    <p>Under the GDPR (EU/UK) and India's DPDP Act, you also have the right to access, correct, delete, or restrict processing of your data, and to lodge a complaint with your local data protection authority. Contact us first at <a href="mailto:privacy@soulsync.app">privacy@soulsync.app</a> and we'll resolve it within 30 days.</p>
+
+    <h2 id="children">9. Children</h2>
+    <p>SoulSync is for users <strong>13 and older</strong> (or 16+ in some jurisdictions). We do not knowingly collect data from children below the applicable age. If you're a parent and believe your child created an account, email <a href="mailto:privacy@soulsync.app">privacy@soulsync.app</a> and we'll delete it.</p>
+
+    <h2 id="changes">10. Changes</h2>
+    <p>We'll post material changes here and notify you in-app at least 7 days before they take effect. Continued use after the effective date constitutes acceptance.</p>
+
+    <h2 id="contact">11. Contact</h2>
+    <p>Privacy questions: <a href="mailto:privacy@soulsync.app">privacy@soulsync.app</a><br/>
+    Security disclosures: <a href="mailto:security@soulsync.app">security@soulsync.app</a><br/>
+    General support: <a href="mailto:hello@soulsync.app">hello@soulsync.app</a></p>
+
+    <div class="legal-foot">
+      <div>© 2026 SoulSync</div>
+      <div>
+        <a href="index.html">Home</a> ·
+        <a href="terms.html">Terms</a> ·
+        <a href="https://github.com/sahith14/Couples-app">Source</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+name: Deploy Supabase
+
+# Auto-deploys schema migrations + Edge Functions when changes touch
+# supabase/. Skips silently if the required secrets aren't configured yet —
+# so the workflow shows green for new clones until you add secrets.
+#
+# Required GitHub repo secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_ACCESS_TOKEN   → from https://supabase.com/dashboard/account/tokens
+#   SUPABASE_PROJECT_REF    → the 20-char ref from your project URL
+#   SUPABASE_DB_PASSWORD    → from project Settings → Database
+#
+# Optional (only if you want compose-message live):
+#   OPENAI_API_KEY          → forwarded as a function secret
+#   OPENAI_BASE_URL         → optional, override the default OpenAI endpoint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/deploy-supabase.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if secrets are not configured
+        id: gate
+        env:
+          ACCESS: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ -z "$ACCESS" ] || [ -z "$REF" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "::notice ::Skipping Supabase deploy — add SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF repo secrets to enable."
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: supabase/setup-cli@v1
+        if: steps.gate.outputs.configured == 'true'
+        with:
+          version: latest
+
+      - name: Link project
+        if: steps.gate.outputs.configured == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} \
+                        --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
+
+      - name: Push migrations
+        if: steps.gate.outputs.configured == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase db push --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
+
+      - name: Set Edge Function secrets
+        if: steps.gate.outputs.configured == 'true' && env.OPENAI_API_KEY != ''
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+        run: |
+          if [ -n "$OPENAI_API_KEY" ]; then
+            supabase secrets set OPENAI_API_KEY="$OPENAI_API_KEY"
+          fi
+          if [ -n "$OPENAI_BASE_URL" ]; then
+            supabase secrets set OPENAI_BASE_URL="$OPENAI_BASE_URL"
+          fi
+
+      - name: Deploy Edge Functions
+        if: steps.gate.outputs.configured == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase functions deploy compose-message
+          supabase functions deploy dispatch-scheduled
+          supabase functions deploy widget-payload
+
+      - name: Schedule cron for dispatch-scheduled
+        if: steps.gate.outputs.configured == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          # Run every minute. Idempotent — safe to re-apply on every deploy.
+          supabase functions schedule create dispatch-scheduled \
+            --cron "* * * * *" --silent || \
+            supabase functions schedule update dispatch-scheduled \
+            --cron "* * * * *" --silent || true
